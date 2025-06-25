@@ -104,11 +104,14 @@ export const sendMessage = mutation({
             timestamp: Date.now(),
             chatId: args.chatId,
         });
-        const messages = await ctx.db
+        const messages = (await ctx.db
             .query("messages")
             .withIndex("by_chat", (q) => q.eq("chatId", args.chatId))
             .order("desc")
-            .take(20);
+            .take(20)
+        ).reverse();
+
+        console.log(messages);
 
         await ctx.scheduler.runAfter(0, internal.openai.chat, {
             messages,
